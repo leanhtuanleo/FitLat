@@ -1,0 +1,56 @@
+
+# =====================================
+# 1. Environment variables and secrets
+# =====================================
+.env
+.env.*
+!.env.example
+
+# Local configuration and credentials
+application-local.properties
+application-secret.properties
+application-dev.properties
+
+# =====================================
+# 2. Java / Spring Boot / Maven
+# =====================================
+**/target/
+*.class
+*.jar
+*.war
+*.log
+
+# =====================================
+# 3. Android / Gradle
+# =====================================
+**/.gradle/
+**/build/
+local.properties
+*.apk
+*.aab
+
+# =====================================
+# 4. Web / Node.js
+# =====================================
+**/node_modules/
+**/dist/
+**/.next/
+**/coverage/
+
+# =====================================
+# 5. IDE
+# =====================================
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# =====================================
+# 6. Operating system
+# =====================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local application configuration and secrets
+**/src/main/resources/application.properties
