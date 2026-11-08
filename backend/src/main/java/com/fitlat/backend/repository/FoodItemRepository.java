@@ -1,6 +1,5 @@
 package com.fitlat.backend.repository;
 
-import com.fitlat.backend.entity.FoodCategory;
 import com.fitlat.backend.entity.FoodItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
