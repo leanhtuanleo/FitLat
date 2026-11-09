@@ -1,0 +1,9 @@
+$kind: http-request
+name: ""
+url: http://localhost:8080/api/users
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: '"eyJraWQiOiJmaXRsYXQtc2lnbmluZy1rZXkiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZSI6Ik1FTUJFUiIsImV4cCI6MTc5MzYyOTAzMywiaWF0IjoxNzkzNjI4MTMzfQ.oQHjb45QoYtnS1k_0tXHIYm_FWFAjQ1BFbRfrbZrpOs"'
+order: 1000

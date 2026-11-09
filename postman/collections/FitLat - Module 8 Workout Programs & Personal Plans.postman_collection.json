@@ -1,0 +1,494 @@
+{
+  "info": {
+    "_postman_id": "4871da69-1dcd-43ab-9636-d1f0a164cc67",
+    "name": "FitLat - Module 8 Workout Programs & Personal Plans",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "59381735",
+    "_collection_link": "https://go.postman.co/collection/59381735-4871da69-1dcd-43ab-9636-d1f0a164cc67?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01 - Discovery",
+      "item": [
+        {
+          "name": "Get Active Exercises",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Workout Programs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Muscle Groups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Equipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Workout Program Templates",
+      "item": [
+        {
+          "name": "Create Workout Program",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\nif (data.id !== undefined) {\r\n    pm.collectionVariables.set(\"programId\", String(data.id));\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nameVi\": \"Chương trình tập toàn thân 3 buổi\",\r\n  \"nameEn\": \"Full Body Beginner 3 Days\",\r\n  \"description\": \"Chương trình toàn thân dành cho người mới bắt đầu, tập 3 buổi mỗi tuần.\",\r\n  \"difficulty\": \"BEGINNER\",\r\n  \"durationWeeks\": 4,\r\n  \"daysPerWeek\": 3,\r\n  \"exercises\": [\r\n    {\r\n      \"exerciseId\": 2,\r\n      \"dayNumber\": 1,\r\n      \"orderIndex\": 1,\r\n      \"targetSets\": 3,\r\n      \"repsMin\": 8,\r\n      \"repsMax\": 12,\r\n      \"restSeconds\": 90,\r\n      \"notes\": \"Bài tập đầu tiên\"\r\n    },\r\n    {\r\n      \"exerciseId\": 3,\r\n      \"dayNumber\": 1,\r\n      \"orderIndex\": 2,\r\n      \"targetSets\": 3,\r\n      \"repsMin\": 10,\r\n      \"repsMax\": 12,\r\n      \"restSeconds\": 60,\r\n      \"notes\": \"Bài tập thứ hai\"\r\n    },\r\n    {\r\n      \"exerciseId\": 4,\r\n      \"dayNumber\": 2,\r\n      \"orderIndex\": 1,\r\n      \"targetSets\": 3,\r\n      \"repsMin\": 8,\r\n      \"repsMax\": 12,\r\n      \"restSeconds\": 90,\r\n      \"notes\": \"Bài tập ngày thứ hai\"\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workout-programs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "workout-programs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Workout Programs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Workout Program",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/workout-programs/{{programId}}{{baseUrl}}/api/workout-programs/{{programId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "workout-programs",
+                "{{programId}}{{baseUrl}}",
+                "api",
+                "workout-programs",
+                "{{programId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Workout Program",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/workout-programs/{{programId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "workout-programs",
+                "{{programId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Member Cannot Create",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Trainer Cannot Create",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Trainer Cannot Update",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Member Cannot Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/workout-programs/{{programId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "workout-programs",
+                "{{programId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Program",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/workout-programs/{{programId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "workout-programs",
+                "{{programId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Personal Workout Plans",
+      "item": [
+        {
+          "name": "List My Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Plan from Scratch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\nif (data.id !== undefined) {\r\n    pm.collectionVariables.set(\"planId\", String(data.id));\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"My Independent Workout Plan\",\r\n  \"durationWeeks\": 4,\r\n  \"daysPerWeek\": 3,\r\n  \"startDate\": \"2026-11-10\",\r\n  \"endDate\": \"2026-12-08\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-plans"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Copy Program to My Plan",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-plans/from-programs/{{programId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-plans",
+                "from-programs",
+                "{{programId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Plan",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-plans/{{planId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-plans",
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Plan Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-plans/{{planId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-plans",
+                "{{planId}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Replace Plan Exercises",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-plans/{{planId}}/exercises",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-plans",
+                "{{planId}}",
+                "exercises"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Trainer Lists Own Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-plans"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Archive My Plan",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-plans/{{planId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-plans",
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Validation & Access Control",
+      "item": [
+        {
+          "name": "Get Non-existent Program",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Non-existent Personal Plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{memberToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "key": "memberToken",
+      "value": ""
+    },
+    {
+      "key": "trainerToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "programId",
+      "value": ""
+    },
+    {
+      "key": "planId",
+      "value": ""
+    }
+  ]
+}
