@@ -1,0 +1,1133 @@
+{
+  "info": {
+    "_postman_id": "bd825886-fe71-48fa-8d09-dc75b389a505",
+    "name": "FitLat - Module 9 Workout Logging & Progress Tracking",
+    "description": "FitLat Module 9 – Workout Logging & Progress Tracking.\n\nPREPARATION:\n1. Start backend at http://localhost:8080.\n2. Select Postman environment 'FitLat Local'.\n3. Ensure memberToken and trainerToken are valid JWT access tokens for two different accounts.\n4. Ensure at least one ACTIVE exercise exists. Folder 01.1 saves the first exercise ID as activeExerciseId when possible. If the list is empty, create an active exercise using the Module 7 ADMIN collection, then set activeExerciseId manually.\n5. Run Folder 01 before Folders 02–05. Run Folder 06.3–06.5 in order; this sequence creates its own session and can run after the main session is completed.\n\nVARIABLES:\nbaseUrl, memberToken, trainerToken, activeExerciseId, sessionId, sessionExerciseId, setLogId, secondSetLogId, cancelSessionId, validationSessionId, validationSessionExerciseId.\n\nGenerated IDs are saved to the selected Postman environment by test scripts. If a status assertion fails, inspect the actual response and GlobalExceptionHandler before changing application code.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "59381735",
+    "_collection_link": "https://go.postman.co/collection/59381735-bd825886-fe71-48fa-8d09-dc75b389a505?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01 - Workout Sessions",
+      "item": [
+        {
+          "name": "01.1 - Discover active exercises",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let data = pm.response.json();",
+                  "let list = Array.isArray(data) ? data : (data.content || data.data || []);",
+                  "if (list.length > 0 && list[0].id != null) {",
+                  "    if (pm.environment.name) pm.environment.set(\"activeExerciseId\", String(list[0].id));",
+                  "    else pm.collectionVariables.set(\"activeExerciseId\", String(list[0].id));",
+                  "    console.log(\"activeExerciseId =\", list[0].id);",
+                  "}",
+                  "pm.test(\"Response contains an exercise list\", function () {",
+                  "    pm.expect(list).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/exercises",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "exercises"
+              ]
+            },
+            "description": "Lấy danh sách bài tập. Script tự lưu ID bài tập đầu tiên vào activeExerciseId. Nếu danh sách rỗng, tạo exercise bằng ADMIN ở Module 7 rồi nhập ID thủ công vào Environment."
+          },
+          "response": []
+        },
+        {
+          "name": "01.2 - Create workout session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "let data = pm.response.json();",
+                  "if (data.id != null) {",
+                  "    if (pm.environment.name) pm.environment.set(\"sessionId\", String(data.id));",
+                  "    else pm.collectionVariables.set(\"sessionId\", String(data.id));",
+                  "}",
+                  "pm.test(\"Response contains session ID\", function () {",
+                  "    pm.expect(data.id).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workoutPlanId\": null,\n  \"sessionDate\": \"2026-11-10\",\n  \"notes\": \"Module 9 Postman test session\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions"
+              ]
+            },
+            "description": "Tạo buổi tập mới. workoutPlanId để null để tạo buổi tập độc lập. Script lưu sessionId."
+          },
+          "response": []
+        },
+        {
+          "name": "01.3 - List my workout sessions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let data = pm.response.json();",
+                  "pm.test(\"Response is a list\", function () {",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions"
+              ]
+            },
+            "description": "Lấy lịch sử buổi tập của tài khoản đang đăng nhập."
+          },
+          "response": []
+        },
+        {
+          "name": "01.4 - Get workout session detail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let data = pm.response.json();",
+                  "pm.test(\"Returned session matches sessionId\", function () {",
+                  "    pm.expect(String(data.id)).to.eql(String(pm.environment.get(\"sessionId\") || pm.collectionVariables.get(\"sessionId\")));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{sessionId}}"
+              ]
+            },
+            "description": "Lấy chi tiết buổi tập vừa tạo ở request 01.2."
+          },
+          "response": []
+        }
+      ],
+      "description": "Create and retrieve workout sessions. Run 01.1 first, then 01.2."
+    },
+    {
+      "name": "02 - Exercise Logging",
+      "item": [
+        {
+          "name": "02.1 - Add exercise to session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "let data = pm.response.json();",
+                  "let exercises = data.exercises || [];",
+                  "if (exercises.length > 0 && exercises[0].id != null) {",
+                  "    if (pm.environment.name) pm.environment.set(\"sessionExerciseId\", String(exercises[0].id));",
+                  "    else pm.collectionVariables.set(\"sessionExerciseId\", String(exercises[0].id));",
+                  "}",
+                  "pm.test(\"Session contains the added exercise\", function () {",
+                  "    pm.expect(exercises.length).to.be.greaterThan(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exerciseId\": \"{{activeExerciseId}}\",\n  \"orderIndex\": 1,\n  \"targetSets\": 3,\n  \"targetRepsMin\": 8,\n  \"targetRepsMax\": 12,\n  \"restSeconds\": 90,\n  \"notes\": \"Maintain controlled tempo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{sessionId}}/exercises",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{sessionId}}",
+                "exercises"
+              ]
+            },
+            "description": "Thêm bài tập vào buổi tập. exerciseId lấy tự động từ request 01.1 hoặc nhập thủ công vào Environment. planExerciseId không gửi vì đây là buổi tập độc lập."
+          },
+          "response": []
+        }
+      ],
+      "description": "Add an active exercise to the session created in Folder 01."
+    },
+    {
+      "name": "03 - Set Logging",
+      "item": [
+        {
+          "name": "03.1 - Add first set log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\npm.test(\"HTTP status is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst data = pm.response.json();\n\nlet logId = data.id;\n\n// Nếu response trả về WorkoutSession chứa exercises và setLogs\nif (logId == null) {\n    const sessionExerciseId =\n        pm.environment.get(\"sessionExerciseId\") ||\n        pm.collectionVariables.get(\"sessionExerciseId\");\n\n    const exercises = data.exercises || [];\n\n    const exercise = exercises.find(\n        e => String(e.id) === String(sessionExerciseId)\n    );\n\n    const logs = exercise?.setLogs || [];\n\n    const log = logs.find(s => Number(s.setNumber) === 1)\n        || logs[logs.length - 1];\n\n    logId = log?.id;\n}\n\npm.test(\"Set log ID is available\", function () {\n    pm.expect(logId).to.not.be.undefined;\n    pm.expect(logId).to.not.be.null;\n});\n\nif (logId != null) {\n    pm.environment.set(\"setLogId\", String(logId));\n}\n\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"setNumber\": 1,\n  \"reps\": 10,\n  \"weightKg\": 40.0,\n  \"durationSeconds\": null,\n  \"distanceMeters\": null,\n  \"rpe\": 7.0,\n  \"notes\": \"First working set\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{sessionId}}/exercises/{{sessionExerciseId}}/sets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{sessionId}}",
+                "exercises",
+                "{{sessionExerciseId}}",
+                "sets"
+              ]
+            },
+            "description": "Ghi nhận set đầu tiên. Script tự lưu setLogId từ response."
+          },
+          "response": []
+        },
+        {
+          "name": "03.2 - Update first set log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reps\": 12,\n  \"weightKg\": 42.5,\n  \"durationSeconds\": null,\n  \"distanceMeters\": null,\n  \"rpe\": 8.0,\n  \"notes\": \"Updated working set\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{sessionId}}/exercises/{{sessionExerciseId}}/sets/{{setLogId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{sessionId}}",
+                "exercises",
+                "{{sessionExerciseId}}",
+                "sets",
+                "{{setLogId}}"
+              ]
+            },
+            "description": "Cập nhật set đầu tiên. PUT là cập nhật toàn bộ các trường hiệu suất; gửi ít nhất một trong reps, durationSeconds hoặc distanceMeters."
+          },
+          "response": []
+        },
+        {
+          "name": "03.3 - Add second set log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\npm.test(\"HTTP status is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst data = pm.response.json();\n\nlet logId = data.id;\nlet log = null;\n\n// Nếu response trả về WorkoutSession\nif (logId == null) {\n    const sessionExerciseId =\n        pm.environment.get(\"sessionExerciseId\") ||\n        pm.collectionVariables.get(\"sessionExerciseId\");\n\n    const exercises = data.exercises || [];\n\n    const exercise = exercises.find(\n        e => String(e.id) === String(sessionExerciseId)\n    );\n\n    const logs = exercise?.setLogs || [];\n\n    log = logs.find(s => Number(s.setNumber) === 2);\n\n    logId = log?.id;\n}\n\npm.test(\"Second set log was created\", function () {\n    pm.expect(logId).to.not.be.undefined;\n    pm.expect(logId).to.not.be.null;\n});\n\nif (logId != null) {\n    pm.environment.set(\"secondSetLogId\", String(logId));\n}\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"setNumber\": 2,\n  \"reps\": 8,\n  \"weightKg\": 45.0,\n  \"durationSeconds\": null,\n  \"distanceMeters\": null,\n  \"rpe\": 9.0,\n  \"notes\": \"Second working set\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{sessionId}}/exercises/{{sessionExerciseId}}/sets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{sessionId}}",
+                "exercises",
+                "{{sessionExerciseId}}",
+                "sets"
+              ]
+            },
+            "description": "Tạo set thứ hai để kiểm thử thao tác xóa."
+          },
+          "response": []
+        },
+        {
+          "name": "03.4 - Delete second set log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{sessionId}}/exercises/{{sessionExerciseId}}/sets/{{secondSetLogId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{sessionId}}",
+                "exercises",
+                "{{sessionExerciseId}}",
+                "sets",
+                "{{secondSetLogId}}"
+              ]
+            },
+            "description": "Xóa set thứ hai. Dự kiến trả về 204 No Content."
+          },
+          "response": []
+        }
+      ],
+      "description": "Create, update and delete individual set logs."
+    },
+    {
+      "name": "04 - Session Management",
+      "item": [
+        {
+          "name": "04.1 - Complete workout session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let data = pm.response.json();",
+                  "pm.test(\"Session status is COMPLETED\", function () {",
+                  "    pm.expect(data.status).to.eql(\"COMPLETED\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"durationMinutes\": 45,\n  \"notes\": \"Completed Module 9 test workout\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{sessionId}}/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{sessionId}}",
+                "complete"
+              ]
+            },
+            "description": "Hoàn thành buổi tập chính. Nên chạy sau khi đã thêm exercise và set log."
+          },
+          "response": []
+        },
+        {
+          "name": "04.2 - Create session for cancellation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "let data = pm.response.json();",
+                  "if (data.id != null) {",
+                  "    if (pm.environment.name) pm.environment.set(\"cancelSessionId\", String(data.id));",
+                  "    else pm.collectionVariables.set(\"cancelSessionId\", String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workoutPlanId\": null,\n  \"sessionDate\": \"2026-11-10\",\n  \"notes\": \"Session to be cancelled\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions"
+              ]
+            },
+            "description": "Tạo buổi tập thứ hai để kiểm thử cancel, không ảnh hưởng buổi tập chính."
+          },
+          "response": []
+        },
+        {
+          "name": "04.3 - Cancel workout session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{cancelSessionId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{cancelSessionId}}",
+                "cancel"
+              ]
+            },
+            "description": "Hủy buổi tập thứ hai. Dự kiến trả về 204 No Content."
+          },
+          "response": []
+        }
+      ],
+      "description": "Complete the main workout and cancel a separate session."
+    },
+    {
+      "name": "05 - Progress Tracking",
+      "item": [
+        {
+          "name": "05.1 - Get exercise progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let data = pm.response.json();",
+                  "pm.test(\"Progress response is an object\", function () {",
+                  "    pm.expect(data).to.be.an(\"object\");",
+                  "});",
+                  "pm.test(\"Response identifies the exercise\", function () {",
+                  "    pm.expect(data.exerciseId).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-progress/exercises/{{activeExerciseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-progress",
+                "exercises",
+                "{{activeExerciseId}}"
+              ]
+            },
+            "description": "Lấy tiến độ của bài tập đã ghi nhận. Buổi tập chính phải được complete trước khi chạy request này. Kết quả có thể gồm totalSessions, totalSets, bestWeightKg, bestReps và các điểm lịch sử theo DTO."
+          },
+          "response": []
+        }
+      ],
+      "description": "Retrieve exercise progress after completing the main session."
+    },
+    {
+      "name": "06 - Validation & Access Control",
+      "item": [
+        {
+          "name": "06.1 - Reject invalid session payload",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workoutPlanId\": -1,\n  \"sessionDate\": \"2026-11-10\",\n  \"notes\": \"Invalid plan ID\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions"
+              ]
+            },
+            "description": "Kiểm tra Bean Validation: workoutPlanId phải là số dương nếu được cung cấp. Dự kiến 400."
+          },
+          "response": []
+        },
+        {
+          "name": "06.2 - Reject nonexistent session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/999999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "999999999"
+              ]
+            },
+            "description": "Kiểm tra ID session không tồn tại. Dự kiến 404."
+          },
+          "response": []
+        },
+        {
+          "name": "06.3 - Create isolated validation session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const data = pm.response.json();",
+                  "pm.expect(data.id, \"created session id\").to.exist;",
+                  "pm.environment.set(\"validationSessionId\", String(data.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workoutPlanId\": null,\n  \"sessionDate\": \"2026-11-10\",\n  \"notes\": \"Isolated validation test session\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions"
+              ]
+            },
+            "description": "Tạo session riêng để kiểm thử set không hợp lệ. Có thể chạy sau khi session chính đã complete."
+          },
+          "response": []
+        },
+        {
+          "name": "06.4 - Add exercise to validation session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 201\", function () { pm.response.to.have.status(201); });",
+                  "const data = pm.response.json();",
+                  "const exercises = data.exercises || [];",
+                  "pm.expect(exercises.length, \"session exercises\").to.be.greaterThan(0);",
+                  "pm.environment.set(\"validationSessionExerciseId\", String(exercises[0].id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exerciseId\": \"{{activeExerciseId}}\",\n  \"orderIndex\": 1,\n  \"targetSets\": 1,\n  \"targetRepsMin\": 1,\n  \"targetRepsMax\": 1,\n  \"restSeconds\": 30,\n  \"notes\": \"Validation test exercise\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{validationSessionId}}/exercises",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{validationSessionId}}",
+                "exercises"
+              ]
+            },
+            "description": "Thêm bài tập active vào session validation. Cần activeExerciseId hợp lệ."
+          },
+          "response": []
+        },
+        {
+          "name": "06.5 - Reject set log without performance metrics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"setNumber\": 99,\n  \"reps\": null,\n  \"weightKg\": 50.0,\n  \"durationSeconds\": null,\n  \"distanceMeters\": null,\n  \"rpe\": 7.0,\n  \"notes\": \"No valid performance metric\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{validationSessionId}}/exercises/{{validationSessionExerciseId}}/sets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{validationSessionId}}",
+                "exercises",
+                "{{validationSessionExerciseId}}",
+                "sets"
+              ]
+            },
+            "description": "Kiểm tra business validation: phải có ít nhất một trong reps, durationSeconds hoặc distanceMeters. Chỉ weightKg không hợp lệ. Dự kiến 400."
+          },
+          "response": []
+        },
+        {
+          "name": "06.6 - Reject request without access token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions"
+              ]
+            },
+            "description": "Kiểm tra JWT protection. Dự kiến 401 Unauthorized."
+          },
+          "response": []
+        },
+        {
+          "name": "06.7 - Prevent access to another user's session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP status is 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{trainerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/workout-sessions/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "workout-sessions",
+                "{{sessionId}}"
+              ]
+            },
+            "description": "Dùng trainerToken (tài khoản khác memberToken) truy cập session do MEMBER tạo. Dự kiến 404 nếu service kiểm tra quyền sở hữu theo userId. Cần trainerToken hợp lệ."
+          },
+          "response": []
+        }
+      ],
+      "description": "Negative tests for validation, missing resources and missing JWT. Run 06.3 before completing the main session."
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{memberToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.variables.get(\"baseUrl\")) console.warn(\"Set baseUrl, e.g. http://localhost:8080\");",
+          "if (!pm.variables.get(\"memberToken\")) console.warn(\"Set memberToken in FitLat Local environment.\");"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "memberToken",
+      "value": ""
+    },
+    {
+      "key": "activeExerciseId",
+      "value": ""
+    },
+    {
+      "key": "sessionId",
+      "value": ""
+    },
+    {
+      "key": "sessionExerciseId",
+      "value": ""
+    },
+    {
+      "key": "setLogId",
+      "value": ""
+    },
+    {
+      "key": "secondSetLogId",
+      "value": ""
+    },
+    {
+      "key": "cancelSessionId",
+      "value": ""
+    },
+    {
+      "key": "trainerToken",
+      "value": ""
+    },
+    {
+      "key": "validationSessionId",
+      "value": ""
+    },
+    {
+      "key": "validationSessionExerciseId",
+      "value": ""
+    }
+  ]
+}

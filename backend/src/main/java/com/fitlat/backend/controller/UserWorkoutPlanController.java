@@ -1,4 +1,3 @@
-
 package com.fitlat.backend.controller;
 
 import com.fitlat.backend.dto.workout.*;

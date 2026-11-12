@@ -1,4 +1,3 @@
-
 package com.fitlat.backend.config;
 
 import org.springframework.context.annotation.Bean;
