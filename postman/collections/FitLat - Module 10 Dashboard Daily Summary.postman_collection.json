@@ -1,0 +1,286 @@
+{
+  "info": {
+    "_postman_id": "a7f6d2b1-10c4-4d7f-9c82-10dashboardfitlat",
+    "name": "FitLat - Module 10 Dashboard & Daily Summary",
+    "description": "Postman collection for FitLat Module 10.\nSet collection variables: baseUrl (default http://localhost:8080), accessToken (valid JWT), dashboardDate (YYYY-MM-DD).\nThe endpoint derives the user ID from the JWT; do not send userId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "dashboardDate",
+      "value": "2026-11-13",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Dashboard",
+      "item": [
+        {
+          "name": "01.1 Get today's dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/dashboard/daily",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "dashboard",
+                "daily"
+              ]
+            },
+            "description": "Fetches the current day's dashboard for the authenticated user."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is JSON', () => pm.response.to.be.json);",
+                  "const body = pm.response.json();",
+                  "pm.test('Top-level dashboard fields exist', () => {",
+                  "  ['date','nutrition','calorieNeeds','workout','dailyProgress'].forEach(k => pm.expect(body).to.have.property(k));",
+                  "});",
+                  "pm.test('Nutrition fields exist', () => pm.expect(body.nutrition).to.include.all.keys('date','mealCount','totalCalories','totalProtein','totalCarbs','totalFat','totalFiber'));",
+                  "pm.test('Workout fields exist', () => pm.expect(body.workout).to.include.all.keys('completedSessionCount','totalDurationMinutes','totalSetCount'));",
+                  "pm.test('Calorie needs is null or valid', () => { if (body.calorieNeeds !== null) pm.expect(body.calorieNeeds).to.include.all.keys('age','bmr','tdee','dailyCalorieTarget','goalType'); });",
+                  "pm.test('Daily progress is null or valid', () => { if (body.dailyProgress !== null) pm.expect(body.dailyProgress).to.include.all.keys('caloriesConsumed','dailyCalorieTarget','caloriesRemaining','completionPercentage'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.2 Get dashboard for selected date",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/dashboard/daily?date={{dashboardDate}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "dashboard",
+                "daily"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "{{dashboardDate}}"
+                }
+              ]
+            },
+            "description": "Uses dashboardDate collection variable in YYYY-MM-DD format."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Response date matches dashboardDate', () => pm.expect(body.date).to.eql(pm.variables.get('dashboardDate')));",
+                  "pm.test('Nutrition and workout summaries are present', () => { pm.expect(body.nutrition).to.be.an('object'); pm.expect(body.workout).to.be.an('object'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Empty Day",
+      "item": [
+        {
+          "name": "02.1 Get dashboard for a future date with no logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/dashboard/daily?date=2099-01-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "dashboard",
+                "daily"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2099-01-01"
+                }
+              ]
+            },
+            "description": "Uses a future date to check that no-log summaries return zero values."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Date is 2099-01-01', () => pm.expect(body.date).to.eql('2099-01-01'));",
+                  "pm.test('Nutrition totals are zero', () => {",
+                  "  pm.expect(body.nutrition.mealCount).to.eql(0);",
+                  "  ['totalCalories','totalProtein','totalCarbs','totalFat','totalFiber'].forEach(k => pm.expect(Number(body.nutrition[k])).to.eql(0));",
+                  "});",
+                  "pm.test('Workout totals are zero', () => {",
+                  "  pm.expect(body.workout.completedSessionCount).to.eql(0);",
+                  "  pm.expect(body.workout.totalDurationMinutes).to.eql(0);",
+                  "  pm.expect(body.workout.totalSetCount).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Authentication",
+      "item": [
+        {
+          "name": "03.1 Request without bearer token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/dashboard/daily",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "dashboard",
+                "daily"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Collection auth is explicitly disabled for this request. Expected 401."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Validation",
+      "item": [
+        {
+          "name": "04.1 Invalid date format",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/dashboard/daily?date=13-11-2026",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "dashboard",
+                "daily"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "13-11-2026"
+                }
+              ]
+            },
+            "description": "Spring's ISO date conversion should reject this non-YYYY-MM-DD value."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400 Bad Request', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

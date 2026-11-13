@@ -30,4 +30,10 @@ public interface WorkoutSessionRepository
             Long userId,
             WorkoutSessionStatus status
     );
+
+    List<WorkoutSession> findAllByUserIdAndSessionDateAndStatusOrderByStartedAtDesc(
+        Long userId,
+        LocalDate sessionDate,
+        WorkoutSessionStatus status
+    );
 }
